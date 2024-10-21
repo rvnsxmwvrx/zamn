@@ -1,17 +1,36 @@
 <script lang="ts">
     import { selectedVideo } from "$lib/stores"
+    import type { Video } from "$lib/types";
     export let thumbLink : string
     export let videoTitle : string
-    export let videoLink : string
+    export let video : Video | undefined
+    export let rating : number
+    export let views : number
     let selectVideo = () => {
-        selectedVideo.set(videoLink)
+        selectedVideo.set(video)
+        fetch("/api/addView", {
+            body: JSON.stringify({link: video?.Link}),
+            method: "POST"
+        })
     }
 </script>
 <div class="video-card" on:click={selectVideo} >
     <img src={thumbLink} alt="Video Thumb"/>
-    <p>{videoTitle}</p>
+    <div class="card-metadata">
+        {#if views > 0}
+        <p>{views}</p>
+        {/if}
+        {#if views <= 0}
+        <p>No Views</p>
+        {/if}
+        <p>{videoTitle}</p>
+        <p>{Math.floor(rating)}%</p>
+    </div>
 </div>
 <style>
+    p {
+        margin: 0 10%;
+    }
     .video-card {
         margin: 0 auto;
         min-width: 100%;
@@ -28,10 +47,18 @@
         border-radius: 15px;
         border-width: 0;
     }
+    .card-metadata {
+        max-height: 30%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
     img {
-        height: 100%;
+        border-radius: 15px;
+        height: 90%;
         width: 100%;
-        object-fit: fill;
+        object-fit: contain;
+        background-color: #090909;
     }
     p {
         font-size: small;

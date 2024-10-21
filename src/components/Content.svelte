@@ -2,18 +2,20 @@
   import VideoViewer from "./VideoViewer.svelte";
   import Card from "./Card.svelte";
   import { type Video } from "$lib/types";
-  import { videos, page, selectedVideo as selectedStore } from "$lib/stores";
+  import { videos, shownVideos, page, selectedVideo as selectedStore } from "$lib/stores";
   import { onMount } from "svelte";
   let localPage = 0;
   page.subscribe((e) => (localPage = e));
   let localVideos : Video[] = [];
+  shownVideos.subscribe(e => localVideos = e)
   async function fetchVideos() {
     try {
-      const response = await fetch('/api');
+      const response = await fetch('/api/getVideos');
       if (response.ok) {
         const data = await response.json();
         console.log(data.videos)
         localVideos = data.videos
+
       } else {
         console.error('Failed to fetch videos:', response.statusText);
       }
@@ -21,14 +23,15 @@
       console.error('Error fetching videos:', error);
     }
     videos.set(localVideos)
+    shownVideos.set(localVideos)
   }
   onMount(() => fetchVideos())
-  let videosPerPage = 15;
-  $: shownVideos = localVideos.slice(
+  let videosPerPage = 8;
+  $: localShownVideos = localVideos.slice(
     localPage * videosPerPage,
     localPage * videosPerPage + videosPerPage
   );
-  let selectedVideo = "none";
+  let selectedVideo : Video | undefined = undefined;
   selectedStore.subscribe((e) => (selectedVideo = e));
   function getThumbName(video: string) : string {
     let sections = video.split("/")
@@ -53,20 +56,22 @@
   }
 </script>
 
-{#if selectedVideo == "none"}
+{#if !selectedVideo}
   <div class="content-wrapper">
-    {#each shownVideos as video}
+    {#each localShownVideos as video}
       <Card
         thumbLink={getThumbName(video.Link)}
         videoTitle={getVideoTitle(video.Name)}
-        videoLink={video.Link}
+        video={video}
+        rating={video.Likes + video.Dislikes == 0 ? 0 : (video.Likes / (video.Likes + video.Dislikes)) * 100}
+        views={video.Views}
       />
     {/each}
     <p>Viewing {localPage * videosPerPage} - {clamp(localPage * videosPerPage + videosPerPage, localVideos.length)}/{localVideos.length} videos</p>
   </div>
 {/if}
 
-{#if selectedVideo != "none"}
+{#if selectedVideo}
   <div class="video-wrapper">
     <VideoViewer />
   </div>
@@ -79,7 +84,7 @@
     padding-left: 1vw;
     overflow-y: scroll;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 10px;
     grid-auto-rows: 200px;
     background-color: #141414;

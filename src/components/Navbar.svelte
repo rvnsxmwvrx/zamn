@@ -1,9 +1,29 @@
-<script></script>
+<script lang="ts">
+  import { videos, shownVideos } from "$lib/stores";
+  import FuzzySearch from "fuzzy-search"
+  import type { Video } from "$lib/types";
+  let localVideos : Video[] = []
+  let fuzzy : FuzzySearch<Video>
+  videos.subscribe(e => {
+    localVideos = e
+    fuzzy = new FuzzySearch(localVideos, ["Name"], {sort: true})    
+  })
+  let input : string
+  let searchDiv : HTMLDivElement
+  const searchVideo = () => {
+    if(input == "") {
+      localVideos.forEach(e => console.log(e.Link))
+      shownVideos.set(localVideos)
+      return
+    }
+    shownVideos.set(fuzzy.search(input))
+  }
+</script>
 
 <nav class="main-navbar">
   <h5>Zamn</h5>
-  <div class="search">
-    <input type="text" placeholder="Search"/>
+  <div bind:this={searchDiv} class="search">
+    <input bind:value={input} on:input={searchVideo} type="text" placeholder="Search"/>
     <button>Go</button>
   </div>
 </nav>
