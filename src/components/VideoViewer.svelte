@@ -29,14 +29,6 @@
   <div class="back-button">
     <button on:click={() => selectedVideo.set(undefined)}>Back</button>
     <div class="ad-div">
-      <iframe
-        title="referral"
-        src="https://go2.eabids.com/refban.go?sizeid=1&pid=146351"
-        frameborder="0"
-        width="468"
-        height="60"
-        scrolling="no"
-      ></iframe>
     </div>
   </div>
   <div class="video-player-wrapper">
@@ -53,7 +45,6 @@
     <button class="rating-button" on:click={dislikeVideo}>Dislike</button>
   </div>
   <div class="ad-div">
-    <p>More Ads Here</p>
   </div>
 </div>
 

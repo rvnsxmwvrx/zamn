@@ -89,7 +89,6 @@
     <p>Viewing by: {viewing}</p>
   </div>
   <div class="ad-div">
-    <p>Some Ads Here</p>
   </div>
   <div class="dmca-alert">
     <p>DMCA</p>
